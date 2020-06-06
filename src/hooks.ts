@@ -110,7 +110,7 @@ export function useLoader<T>(
     return temp
   }, [Proto])
   // Use suspense to load async assets
-  const results = usePromise<LoaderData>(
+  const results = usePromise(
     (Proto: THREE.Loader, url: string | string[]) => {
       const urlArray = Array.isArray(url) ? url : [url]
       return Promise.all(

@@ -98,8 +98,8 @@ export interface CanvasProps {
   gl?: Partial<THREE.WebGLRendererParameters>
   camera?: Partial<
     ReactThreeFiber.Object3DNode<THREE.Camera, typeof THREE.Camera> &
-      ReactThreeFiber.Object3DNode<THREE.PerspectiveCamera, typeof THREE.PerspectiveCamera> &
-      ReactThreeFiber.Object3DNode<THREE.OrthographicCamera, typeof THREE.OrthographicCamera>
+    ReactThreeFiber.Object3DNode<THREE.PerspectiveCamera, typeof THREE.PerspectiveCamera> &
+    ReactThreeFiber.Object3DNode<THREE.OrthographicCamera, typeof THREE.OrthographicCamera>
   >
   raycaster?: Partial<THREE.Raycaster> & { filter?: FilterFunction }
   pixelRatio?: number
@@ -165,8 +165,8 @@ export const useCanvas = (props: UseCanvasProps): PointerEvents => {
 
   const [defaultScene] = useState(() => {
     const scene = new THREE.Scene()
-    ;(scene as any).__interaction = []
-    ;(scene as any).__objects = []
+      ; (scene as any).__interaction = []
+      ; (scene as any).__objects = []
     return scene
   })
 
@@ -286,10 +286,13 @@ export const useCanvas = (props: UseCanvasProps): PointerEvents => {
   /** Events ------------------------------------------------------------------------------------------------ */
 
   /** Sets up defaultRaycaster */
-  const prepareRay = useCallback(({ clientX, clientY }) => {
-    if (clientX !== void 0) {
-      const { left, right, top, bottom } = state.current.size
-      mouse.set(((clientX - left) / (right - left)) * 2 - 1, -((clientY - top) / (bottom - top)) * 2 + 1)
+  // #350 https://github.com/react-spring/react-three-fiber/issues/350
+  // #406 https://github.com/react-spring/react-three-fiber/pull/406/files
+  const prepareRay = useCallback(({ nativeEvent }) => {
+    if (nativeEvent !== void 0) {
+      const { offsetX, offsetY } = nativeEvent;
+      const { width, height } = state.current.size;
+      mouse.set((offsetX / width) * 2 - 1, - (offsetY / height) * 2 + 1);
       defaultRaycaster.setFromCamera(mouse, state.current.camera)
     }
   }, [])
@@ -381,8 +384,8 @@ export const useCanvas = (props: UseCanvasProps): PointerEvents => {
             // Push hits to the array
             if (state.current.captured)
               state.current.captured.push(hit)
-              // Call the original event now
-            ;(event.target as any).setPointerCapture(id)
+                // Call the original event now
+                ; (event.target as any).setPointerCapture(id)
           }
 
           let raycastEvent = {
@@ -587,7 +590,7 @@ export const useCanvas = (props: UseCanvasProps): PointerEvents => {
       if (!state.current.vr) {
         invalidate(state)
       } else if (((gl as any).xr || gl.vr) && gl.setAnimationLoop) {
-        ;((gl as any).xr || gl.vr).enabled = true
+        ; ((gl as any).xr || gl.vr).enabled = true
         gl.setAnimationLoop((t: number) => renderGl(state, t, 0, true))
       } else console.warn('the gl instance does not support VR!')
     }
@@ -599,7 +602,7 @@ export const useCanvas = (props: UseCanvasProps): PointerEvents => {
       if (state.current.gl) {
         if (state.current.gl.forceContextLoss) state.current.gl.forceContextLoss!()
         if (state.current.gl.dispose) state.current.gl.dispose!()
-        ;(state.current as any).gl = undefined
+          ; (state.current as any).gl = undefined
         unmountComponentAtNode(state.current.scene)
         state.current.active = false
       }

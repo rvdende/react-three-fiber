@@ -348,18 +348,18 @@ function switchInstance(instance: any, type: string, newProps: any, fiber: Recon
   const newInstance = createInstance(type, newProps, instance.__container, null, fiber)
   removeChild(parent, instance)
   appendChild(parent, newInstance)
-  // This evil hack switches the react-internal fiber node
-  // https://github.com/facebook/react/issues/14983
-  // https://github.com/facebook/react/pull/15021
-  ;[fiber, fiber.alternate].forEach((fiber: any) => {
-    if (fiber !== null) {
-      fiber.stateNode = newInstance
-      if (fiber.ref) {
-        if (is.fun(fiber.ref)) fiber.ref(newInstance)
-        else (fiber.ref as Reconciler.RefObject).current = newInstance
+    // This evil hack switches the react-internal fiber node
+    // https://github.com/facebook/react/issues/14983
+    // https://github.com/facebook/react/pull/15021
+    ;[fiber, fiber.alternate].forEach((fiber: any) => {
+      if (fiber !== null) {
+        fiber.stateNode = newInstance
+        if (fiber.ref) {
+          if (is.fun(fiber.ref)) fiber.ref(newInstance)
+          else (fiber.ref as Reconciler.RefObject).current = newInstance
+        }
       }
-    }
-  })
+    })
 }
 
 const Renderer = Reconciler({
@@ -432,7 +432,7 @@ const Renderer = Reconciler({
   getChildHostContext() {
     return emptyObject
   },
-  createTextInstance() {},
+  createTextInstance() { },
   finalizeInitialChildren() {
     return false
   },
@@ -442,8 +442,8 @@ const Renderer = Reconciler({
   shouldDeprioritizeSubtree() {
     return false
   },
-  prepareForCommit() {},
-  resetAfterCommit() {},
+  prepareForCommit() { },
+  resetAfterCommit() { },
   shouldSetTextContent() {
     return false
   },
@@ -461,10 +461,10 @@ export function render(
 ) {
   let root = roots.get(container)
   if (!root) {
-    ;(container as any).__state = state
+    ; (container as any).__state = state
     let newRoot = (root = Renderer.createContainer(
       container,
-      state !== undefined && state.current.concurrent ? ConcurrentRoot : LegacyRoot,
+      false,
       false
     ))
     roots.set(container, newRoot)
@@ -492,8 +492,7 @@ export function createPortal(children: React.ReactNode, containerInfo: any, impl
 Renderer.injectIntoDevTools({
   bundleType: process.env.NODE_ENV === 'production' ? 0 : 1,
   version: version,
-  rendererPackageName: 'react-three-fiber',
-  findHostInstanceByFiber: Renderer.findHostInstance,
+  rendererPackageName: 'react-three-fiber'
 })
 
 export { Renderer }
